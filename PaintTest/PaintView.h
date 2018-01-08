@@ -1,20 +1,20 @@
 #pragma once
 #include <QtWidgets/QGraphicsView>
 
-class PaintView: public QGraphicsView
+class PaintView : public QGraphicsView
 {
-	Q_OBJECT
+  Q_OBJECT
 
 public:
-	PaintView(QWidget*);
+  PaintView(QWidget*);
 
-	virtual	~PaintView();
+  virtual	~PaintView();
 
   bool mousePressed();
 
 protected:
-	virtual	void mouseMoveEvent( QMouseEvent* );
-  
+  virtual	void mouseMoveEvent(QMouseEvent*);
+
   void mousePressEvent(QMouseEvent *event);
 
   void mouseReleaseEvent(QMouseEvent *event);
@@ -26,10 +26,11 @@ private:
 
 
 public:
-  Q_SIGNALS:
-  void drawShape(QPointF, QPointF);
-	void UpdateMousePos( QPointF );
-  void freeDraw(QPointF);
+  Q_SIGNALS :
+            void drawShape();
+            void previewShape(QPointF, QPointF);
+            void UpdateMousePos(QPointF);
+            void freeDraw(QPointF);
 
 };
 

@@ -1,10 +1,10 @@
 #include "PaintView.h";
-#include <QtGui/QMouseEvent>
 #include <QtCore/qdebug.h>
+#include <QtGui/QMouseEvent>
 
-PaintView::PaintView( QWidget* parent ):QGraphicsView( parent )
+PaintView::PaintView(QWidget* parent) :QGraphicsView(parent)
 {
-	setMouseTracking( true );
+  setMouseTracking(true);
 }
 
 
@@ -18,17 +18,17 @@ bool PaintView::mousePressed()
 }
 
 
-void	PaintView::mouseMoveEvent( QMouseEvent* event) 
+void	PaintView::mouseMoveEvent(QMouseEvent* event)
 {
-  if(mousePressed())
-    emit freeDraw(mapToScene(event->pos()));
-	emit UpdateMousePos( mapToScene( event->pos() ) );
-  //if (mousePressed())
-  // signal preview painting
+  QPointF currentMousePos = mapToScene(event->pos());
+  emit UpdateMousePos(currentMousePos);
+
+  if (mousePressed())
+  {
+    emit previewShape(mousePressedPos, currentMousePos);
+  }
 
 }
-
-
 void PaintView::mousePressEvent(QMouseEvent * event)
 {
   mousePressedPos = mapToScene(event->pos());
@@ -40,6 +40,8 @@ void PaintView::mouseReleaseEvent(QMouseEvent * event)
 {
   mouseReleasedPos = mapToScene(event->pos());
   isMousePressed = false;
-  emit drawShape(mousePressedPos, mouseReleasedPos);
+  emit drawShape();
   //signal draw previewed paiting
 }
+
+// view only updates mouse current pos

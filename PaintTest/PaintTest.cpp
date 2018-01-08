@@ -1,24 +1,25 @@
 #include "PaintTest.h"
 
-	
-MainWindow::MainWindow( QWidget *parent, Qt::WindowFlags flags )
-	: QMainWindow( parent, flags )
+
+MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
+  : QMainWindow(parent, flags)
 {
-	
-	ui.setupUi( this );
-	mView = new PaintView( this );
-	mScene = new PaintScene( this );
+
+  ui.setupUi(this);
+  mView = new PaintView(this);
+  mScene = new PaintScene(this);
   mColorDialog = new QColorDialog(this);
 
 
-	mScene->setSceneRect( QRectF( 0, 0, 2000, 2000 ) );
+  mScene->setSceneRect(QRectF(0, 0, 2000, 2000));
 
-	mView->setScene( mScene );
-	setCentralWidget( mView );
-	
+  mView->setScene(mScene);
+  setCentralWidget(mView);
+
   mTool = SelectedTool::ePen;
   ui.selectionPen->setChecked(true);
 
+  currentTool = new EllipseTool(this, mScene);
 
   mToolSelectionBarButtons = new QActionGroup(this);
   mToolSelectionBarButtons->addAction(ui.selectionPen);
@@ -27,7 +28,7 @@ MainWindow::MainWindow( QWidget *parent, Qt::WindowFlags flags )
   mToolSelectionBarButtons->addAction(ui.selectionEllipse);
   mToolSelectionBarButtons->setExclusive(true);
 
-	connect( mView, SIGNAL( UpdateMousePos( QPointF ) ), this, SLOT( UpdateMousePos( QPointF ) ) );
+  connect(mView, SIGNAL(UpdateMousePos(QPointF)), this, SLOT(UpdateMousePos(QPointF)));
 
   connect(ui.selectionLine, &QAction::triggered, this, &MainWindow::onLineSelect);
   connect(ui.selectionPen, &QAction::triggered, this, &MainWindow::onPenSelect);
@@ -37,23 +38,23 @@ MainWindow::MainWindow( QWidget *parent, Qt::WindowFlags flags )
 
   connect(mView, SIGNAL(drawShape(QPointF, QPointF)), this, SLOT(drawShape(QPointF, QPointF)));
   connect(mView, SIGNAL(freeDraw(QPointF)), this, SLOT(freeDraw(QPointF)));
-  
+  connect(mView, SIGNAL(previewShape(QPointF, QPointF)), this, SLOT(previewShape(QPointF, QPointF)));
 
 
   mView->show();
-  
+
 }
 
 
 MainWindow::~MainWindow()
 {
-	delete mScene;
-	delete mView;
+  delete mScene;
+  delete mView;
 }
 
 void MainWindow::onActionExitTriggered()
 {
-	close();
+  close();
 }
 
 void MainWindow::drawShape(QPointF start, QPointF end)
@@ -63,13 +64,13 @@ void MainWindow::drawShape(QPointF start, QPointF end)
   case SelectedTool::ePen:
     break;
   case SelectedTool::eEllipse:
-    mScene->addEllipse(QRectF(start, end), QPen(mColor));
+    previewedShape = mScene->addEllipse(QRectF(start, end), QPen(mColor));
     break;
   case SelectedTool::eLine:
-    mScene->addLine(start.x(), start.y(), end.x(), end.y(), QPen(mColor));
+    previewedShape = mScene->addLine(start.x(), start.y(), end.x(), end.y(), QPen(mColor));
     break;
   case SelectedTool::eRectangle:
-    mScene->addRect(QRectF(start, end), QPen(mColor));
+    previewedShape = mScene->addRect(QRectF(start, end), QPen(mColor));
   }
 }
 
@@ -77,10 +78,31 @@ void MainWindow::freeDraw(QPointF currentPos)
 {
   if (mTool == SelectedTool::ePen)
   {
-    
+
     mScene->addLine(_initialPoint.x(), _initialPoint.y(), currentPos.x(), currentPos.y(), QPen(mColor));
   }
   _initialPoint = currentPos;
+}
+
+void MainWindow::previewShape(QPointF start, QPointF end)
+{
+  switch (mTool)
+  {
+  case SelectedTool::ePen:
+    break;
+  case SelectedTool::eEllipse:
+    if (previewedShape)
+      delete previewedShape;
+    previewedShape = currentTool->drawShape(start, end);//mScene->addEllipse(QRectF(start, end), QPen(mColor));
+    break;
+  case SelectedTool::eLine:
+    delete previewedShape;
+    previewedShape = mScene->addLine(start.x(), start.y(), end.x(), end.y(), QPen(mColor));
+    break;
+  case SelectedTool::eRectangle:
+    delete previewedShape;
+    previewedShape = mScene->addRect(QRectF(start, end), QPen(mColor));
+  }
 }
 
 void MainWindow::onPenSelect()
@@ -114,9 +136,9 @@ void MainWindow::onColorSelection()
 }
 
 
-void MainWindow::UpdateMousePos( QPointF point )
+void MainWindow::UpdateMousePos(QPointF point)
 {
-	 QString msg;
-	 msg.sprintf( "%2.0fx%2.0f", point.x(), point.y() );
-	 statusBar()->showMessage( msg );
+  QString msg;
+  msg.sprintf("%2.0fx%2.0f", point.x(), point.y());
+  statusBar()->showMessage(msg);
 }
