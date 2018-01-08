@@ -73,13 +73,14 @@ void MainWindow::drawShape(QPointF start, QPointF end)
   }
 }
 
-void MainWindow::freeDraw(QPointF start)
+void MainWindow::freeDraw(QPointF currentPos)
 {
   if (mTool == SelectedTool::ePen)
   {
-    QPointF end = start;
-    mScene->addLine(start.x(), start.y(), end.x(), end.y(), QPen(mColor));
+    
+    mScene->addLine(_initialPoint.x(), _initialPoint.y(), currentPos.x(), currentPos.y(), QPen(mColor));
   }
+  _initialPoint = currentPos;
 }
 
 void MainWindow::onPenSelect()

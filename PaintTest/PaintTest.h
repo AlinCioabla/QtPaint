@@ -43,7 +43,7 @@ private:
 	Ui::PaintTestClass	ui;
   QActionGroup *mToolSelectionBarButtons;
   QColorDialog *mColorDialog;
-
+  QPointF _initialPoint;
 };
 
 #endif // PAINTTEST_H

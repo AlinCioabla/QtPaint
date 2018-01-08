@@ -23,6 +23,9 @@ void	PaintView::mouseMoveEvent( QMouseEvent* event)
   if(mousePressed())
     emit freeDraw(mapToScene(event->pos()));
 	emit UpdateMousePos( mapToScene( event->pos() ) );
+  //if (mousePressed())
+  // signal preview painting
+
 }
 
 
@@ -30,6 +33,7 @@ void PaintView::mousePressEvent(QMouseEvent * event)
 {
   mousePressedPos = mapToScene(event->pos());
   isMousePressed = true;
+
 }
 
 void PaintView::mouseReleaseEvent(QMouseEvent * event)
@@ -37,5 +41,5 @@ void PaintView::mouseReleaseEvent(QMouseEvent * event)
   mouseReleasedPos = mapToScene(event->pos());
   isMousePressed = false;
   emit drawShape(mousePressedPos, mouseReleasedPos);
-
+  //signal draw previewed paiting
 }
